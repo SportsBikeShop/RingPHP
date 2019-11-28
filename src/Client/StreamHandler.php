@@ -16,9 +16,9 @@ use GuzzleHttp\Stream\Utils;
 class StreamHandler
 {
     private $options;
-    private $lastHeaders;
+    public $lastHeaders;
 
-    public function __construct(array $options = [])
+    public function __construct(array $options = array())
     {
         $this->options = $options;
     }
@@ -43,13 +43,13 @@ class StreamHandler
         $hdrs = $this->lastHeaders;
         $this->lastHeaders = null;
         $parts = explode(' ', array_shift($hdrs), 3);
-        $response = [
+        $response = array(
             'version'        => substr($parts[0], 5),
             'status'         => $parts[1],
             'reason'         => isset($parts[2]) ? $parts[2] : null,
             'headers'        => Core::headersFromLines($hdrs),
             'effective_url'  => $url,
-        ];
+        );
 
         $stream = $this->checkDecode($request, $response, $stream);
 
@@ -121,7 +121,7 @@ class StreamHandler
      * @param string        $url
      * @param RingException $e
      *
-     * @return array
+     * @return CompletedFutureArray
      */
     private function createErrorResponse($url, RingException $e)
     {
@@ -135,13 +135,13 @@ class StreamHandler
             $e = new ConnectException($e->getMessage(), 0, $e);
         }
 
-        return new CompletedFutureArray([
+        return new CompletedFutureArray(array(
             'status'        => null,
             'body'          => null,
-            'headers'       => [],
+            'headers'       => array(),
             'effective_url' => $url,
             'error'         => $e
-        ]);
+        ));
     }
 
     /**
@@ -152,15 +152,15 @@ class StreamHandler
      * @return resource
      * @throws \RuntimeException on error
      */
-    private function createResource(callable $callback)
+    private function createResource($callback)
     {
         $errors = null;
         set_error_handler(function ($_, $msg, $file, $line) use (&$errors) {
-            $errors[] = [
+            $errors[] = array(
                 'message' => $msg,
                 'file'    => $file,
                 'line'    => $line
-            ];
+            );
             return true;
         });
 
@@ -192,7 +192,7 @@ class StreamHandler
         if ((!isset($request['version']) || $request['version'] == '1.1')
             && !Core::hasHeader($request, 'Connection')
         ) {
-            $request['headers']['Connection'] = ['close'];
+            $request['headers']['Connection'] = array('close');
         }
 
         // Ensure SSL is verified by default
@@ -200,7 +200,7 @@ class StreamHandler
             $request['client']['verify'] = true;
         }
 
-        $params = [];
+        $params = array();
         $options = $this->getDefaultOptions($request);
 
         if (isset($request['client'])) {
@@ -229,15 +229,15 @@ class StreamHandler
             }
         }
 
-        $context = [
-            'http' => [
+        $context = array(
+            'http' => array(
                 'method'           => $request['http_method'],
                 'header'           => $headers,
                 'protocol_version' => isset($request['version']) ? $request['version'] : 1.1,
                 'ignore_errors'    => true,
                 'follow_location'  => 0,
-            ],
-        ];
+            ),
+        );
 
         $body = Core::body($request);
         if (isset($body)) {
@@ -319,7 +319,7 @@ class StreamHandler
 
         // Wrap the existing function if needed.
         $params['notification'] = isset($params['notification'])
-            ? Core::callArray([$params['notification'], $fn])
+            ? Core::callArray(array($params['notification'], $fn))
             : $fn;
     }
 
@@ -329,7 +329,7 @@ class StreamHandler
             return;
         }
 
-        static $map = [
+        static $map = array(
             STREAM_NOTIFY_CONNECT       => 'CONNECT',
             STREAM_NOTIFY_AUTH_REQUIRED => 'AUTH_REQUIRED',
             STREAM_NOTIFY_AUTH_RESULT   => 'AUTH_RESULT',
@@ -340,10 +340,10 @@ class StreamHandler
             STREAM_NOTIFY_FAILURE       => 'FAILURE',
             STREAM_NOTIFY_COMPLETED     => 'COMPLETED',
             STREAM_NOTIFY_RESOLVE       => 'RESOLVE',
-        ];
+        );
 
-        static $args = ['severity', 'message', 'message_code',
-            'bytes_transferred', 'bytes_max'];
+        static $args = array('severity', 'message', 'message_code',
+            'bytes_transferred', 'bytes_max');
 
         $value = Core::getDebugResource($value);
         $ident = $request['http_method'] . ' ' . Core::url($request);
@@ -359,7 +359,7 @@ class StreamHandler
 
         // Wrap the existing function if needed.
         $params['notification'] = isset($params['notification'])
-            ? Core::callArray([$params['notification'], $fn])
+            ? Core::callArray(array($params['notification'], $fn))
             : $fn;
     }
 
@@ -397,14 +397,15 @@ class StreamHandler
         array $options,
         $context
     ) {
+        $that = $this;
         return $this->createResource(
-            function () use ($url, $context) {
+            function () use ($url, $context, $that) {
                 if (false === strpos($url, 'http')) {
                     trigger_error("URL is invalid: {$url}", E_USER_WARNING);
                     return null;
                 }
                 $resource = fopen($url, 'r', null, $context);
-                $this->lastHeaders = $http_response_header;
+                $that->lastHeaders = $http_response_header;
                 return $resource;
             },
             $request,

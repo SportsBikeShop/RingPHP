@@ -19,10 +19,10 @@ class CurlHandler
     private $factory;
 
     /** @var array Array of curl easy handles */
-    private $handles = [];
+    private $handles = array();
 
     /** @var array Array of owned curl easy handles */
-    private $ownedHandles = [];
+    private $ownedHandles = array();
 
     /** @var int Total number of idle handles to keep in cache */
     private $maxHandles;
@@ -37,9 +37,9 @@ class CurlHandler
      *
      * @param array $options Array of options to use with the handler
      */
-    public function __construct(array $options = [])
+    public function __construct(array $options = array())
     {
-        $this->handles = $this->ownedHandles = [];
+        $this->handles = $this->ownedHandles = array();
         $this->factory = isset($options['handle_factory'])
             ? $options['handle_factory']
             : new CurlFactory();
@@ -87,13 +87,13 @@ class CurlHandler
         $bd = $result[2];
         Core::doSleep($request);
         curl_exec($h);
-        $response = ['transfer_stats' => curl_getinfo($h)];
+        $response = array('transfer_stats' => curl_getinfo($h));
         $response['curl']['error'] = curl_error($h);
         $response['curl']['errno'] = curl_errno($h);
         $response['transfer_stats'] = array_merge($response['transfer_stats'], $response['curl']);
         $this->releaseEasyHandle($h);
 
-        return CurlFactory::createResponse([$this, '_invokeAsArray'], $request, $response, $hd, $bd);
+        return CurlFactory::createResponse(array($this, '_invokeAsArray'), $request, $response, $hd, $bd);
     }
 
     private function checkoutEasyHandle()
@@ -121,15 +121,19 @@ class CurlHandler
             unset($this->handles[$id], $this->ownedHandles[$id]);
         } else {
             // curl_reset doesn't clear these out for some reason
-            static $unsetValues = [
+            static $unsetValues = array(
                 CURLOPT_HEADERFUNCTION   => null,
                 CURLOPT_WRITEFUNCTION    => null,
                 CURLOPT_READFUNCTION     => null,
                 CURLOPT_PROGRESSFUNCTION => null,
-            ];
+            );
             curl_setopt_array($handle, $unsetValues);
             curl_reset($handle);
             $this->ownedHandles[$id] = false;
         }
     }
+}
+
+function curl_reset(&$ch){
+    $ch = curl_init();
 }

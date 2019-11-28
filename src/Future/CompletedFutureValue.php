@@ -48,9 +48,9 @@ class CompletedFutureValue implements FutureInterface
     }
 
     public function then(
-        callable $onFulfilled = null,
-        callable $onRejected = null,
-        callable $onProgress = null
+        $onFulfilled = null,
+        $onRejected = null,
+        $onProgress = null
     ) {
         return $this->promise()->then($onFulfilled, $onRejected, $onProgress);
     }

@@ -22,8 +22,8 @@ class CurlMultiHandler
     private $factory;
     private $selectTimeout;
     private $active;
-    private $handles = [];
-    private $delays = [];
+    private $handles = array();
+    private $delays = array();
     private $maxHandles;
 
     /**
@@ -41,7 +41,7 @@ class CurlMultiHandler
      *
      * @param array $options
      */
-    public function __construct(array $options = [])
+    public function __construct(array $options = array())
     {
         if (isset($options['mh'])) {
             $this->_mh = $options['mh'];
@@ -80,22 +80,23 @@ class CurlMultiHandler
     {
         $factory = $this->factory;
         $result = $factory($request);
-        $entry = [
+        $entry = array(
             'request'  => $request,
-            'response' => [],
+            'response' => array(),
             'handle'   => $result[0],
             'headers'  => &$result[1],
             'body'     => $result[2],
             'deferred' => new Deferred(),
-        ];
+        );
 
         $id = (int) $result[0];
 
+        $that = $this;
         $future = new FutureArray(
             $entry['deferred']->promise(),
-            [$this, 'execute'],
-            function () use ($id) {
-                return $this->cancel($id);
+            array($this, 'execute'),
+            function () use ($id, $that) {
+                return $that->cancel($id);
             }
         );
 
@@ -185,7 +186,7 @@ class CurlMultiHandler
      *
      * @return bool True on success, false on failure.
      */
-    private function cancel($id)
+    public function cancel($id)
     {
         // Cannot cancel if it has been processed.
         if (!isset($this->handles[$id])) {

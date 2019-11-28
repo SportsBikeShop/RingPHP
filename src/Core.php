@@ -41,7 +41,7 @@ class Core
      */
     public static function headerLines($message, $header)
     {
-        $result = [];
+        $result = array();
 
         if (!empty($message['headers'])) {
             foreach ($message['headers'] as $name => $value) {
@@ -127,7 +127,7 @@ class Core
      */
     public static function headersFromLines($lines)
     {
-        $headers = [];
+        $headers = array();
 
         foreach ($lines as $line) {
             $parts = explode(':', $line, 2);
@@ -333,14 +333,14 @@ class Core
      */
     public static function proxy(
         FutureArrayInterface $future,
-        callable $onFulfilled = null,
-        callable $onRejected = null,
-        callable $onProgress = null
+        $onFulfilled = null,
+        $onRejected = null,
+        $onProgress = null
     ) {
         return new FutureArray(
             $future->then($onFulfilled, $onRejected, $onProgress),
-            [$future, 'wait'],
-            [$future, 'cancel']
+            array($future, 'wait'),
+            array($future, 'cancel')
         );
     }
 

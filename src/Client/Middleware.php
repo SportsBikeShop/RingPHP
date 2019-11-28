@@ -22,8 +22,8 @@ class Middleware
      * @return callable Returns the composed handler.
      */
     public static function wrapFuture(
-        callable $default,
-        callable $future
+        $default,
+        $future
     ) {
         return function (array $request) use ($default, $future) {
             return empty($request['client']['future'])
@@ -46,8 +46,8 @@ class Middleware
      * @return callable Returns the composed handler.
      */
     public static function wrapStreaming(
-        callable $default,
-        callable $streaming
+        $default,
+        $streaming
     ) {
         return function (array $request) use ($default, $streaming) {
             return empty($request['client']['stream'])

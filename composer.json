@@ -9,10 +9,20 @@
             "homepage": "https://github.com/mtdowling"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/SportsBikeShop/streams"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/SportsBikeShop/promise"
+        }
+    ],
     "require": {
-        "php": ">=5.4.0",
-        "guzzlehttp/streams": "~3.0",
-        "react/promise": "~2.0"
+        "php": ">=5.3.0",
+        "guzzlehttp/streams": "dev-sbs-fork",
+        "react/promise": "dev-sbs-fork"
     },
     "require-dev": {
         "ext-curl": "*",

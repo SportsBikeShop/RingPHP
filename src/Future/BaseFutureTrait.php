@@ -8,10 +8,10 @@ use React\Promise\PromiseInterface;
 /**
  * Implements common future functionality built on top of promises.
  */
-trait BaseFutureTrait
+abstract class BaseFutureTrait
 {
     /** @var callable */
-    private $waitfn;
+    public $waitfn;
 
     /** @var callable */
     private $cancelfn;
@@ -20,12 +20,12 @@ trait BaseFutureTrait
     private $wrappedPromise;
 
     /** @var \Exception Error encountered. */
-    private $error;
+    public $error;
 
     /** @var mixed Result of the future */
-    private $result;
+    public $result;
 
-    private $isRealized = false;
+    public $isRealized = false;
 
     /**
      * @param PromiseInterface $promise Promise to shadow with the future.
@@ -39,8 +39,8 @@ trait BaseFutureTrait
      */
     public function __construct(
         PromiseInterface $promise,
-        callable $wait = null,
-        callable $cancel = null
+        $wait = null,
+        $cancel = null
     ) {
         $this->wrappedPromise = $promise;
         $this->waitfn = $wait;
@@ -72,9 +72,9 @@ trait BaseFutureTrait
     }
 
     public function then(
-        callable $onFulfilled = null,
-        callable $onRejected = null,
-        callable $onProgress = null
+        $onFulfilled = null,
+        $onRejected = null,
+        $onProgress = null
     ) {
         return $this->wrappedPromise->then($onFulfilled, $onRejected, $onProgress);
     }
@@ -96,16 +96,17 @@ trait BaseFutureTrait
     {
         // Get the result and error when the promise is resolved. Note that
         // calling this function might trigger the resolution immediately.
+        $that = $this;
         $this->wrappedPromise->then(
-            function ($value) {
-                $this->isRealized = true;
-                $this->result = $value;
-                $this->waitfn = $this->cancelfn = null;
+            function ($value) use ($that) {
+                $that->isRealized = true;
+                $that->result = $value;
+                $that->waitfn = $that->cancelfn = null;
             },
-            function ($error) {
-                $this->isRealized = true;
-                $this->error = $error;
-                $this->waitfn = $this->cancelfn = null;
+            function ($error) use ($that) {
+                $that->isRealized = true;
+                $that->error = $error;
+                $that->waitfn = $that->cancelfn = null;
             }
         );
     }

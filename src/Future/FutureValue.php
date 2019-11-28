@@ -6,7 +6,6 @@ namespace GuzzleHttp\Ring\Future;
  * value, but can also return promises that are delivered the value when it is
  * available.
  */
-class FutureValue implements FutureInterface
+class FutureValue extends BaseFutureTrait implements FutureInterface
 {
-    use BaseFutureTrait;
 }

@@ -8,10 +8,8 @@ namespace GuzzleHttp\Ring\Future;
  * @property mixed $_value Actual data used by the future. Accessing this
  *     property will cause the future to block if needed.
  */
-trait MagicFutureTrait
+abstract class MagicFutureTrait extends BaseFutureTrait
 {
-    use BaseFutureTrait;
-
     /**
      * This function handles retrieving the dereferenced result when requested.
      *

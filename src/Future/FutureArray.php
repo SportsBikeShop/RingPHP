@@ -4,10 +4,8 @@ namespace GuzzleHttp\Ring\Future;
 /**
  * Represents a future array value that when dereferenced returns an array.
  */
-class FutureArray implements FutureArrayInterface
+class FutureArray extends MagicFutureTrait implements FutureArrayInterface
 {
-    use MagicFutureTrait;
-
     public function offsetExists($offset)
     {
         return isset($this->_value[$offset]);

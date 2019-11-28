@@ -25,7 +25,7 @@ class CurlFactory
      */
     public function __invoke(array $request, $handle = null)
     {
-        $headers = [];
+        $headers = array();
         $options = $this->getDefaultOptions($request, $headers);
         $this->applyMethod($request, $options);
 
@@ -51,7 +51,7 @@ class CurlFactory
         $body = $this->getOutputBody($request, $options);
         curl_setopt_array($handle, $options);
 
-        return [$handle, &$headers, $body];
+        return array($handle, &$headers, $body);
     }
 
     /**
@@ -66,7 +66,7 @@ class CurlFactory
      * @return array
      */
     public static function createResponse(
-        callable $handler,
+        $handler,
         array $request,
         array $response,
         array $headers,
@@ -93,17 +93,17 @@ class CurlFactory
     }
 
     private static function createErrorResponse(
-        callable $handler,
+        $handler,
         array $request,
         array $response
     ) {
-        static $connectionErrors = [
+        static $connectionErrors = array(
             CURLE_OPERATION_TIMEOUTED  => true,
             CURLE_COULDNT_RESOLVE_HOST => true,
             CURLE_COULDNT_CONNECT      => true,
             CURLE_SSL_CONNECT_ERROR    => true,
             CURLE_GOT_NOTHING          => true,
-        ];
+        );
 
         // Retry when nothing is present or when curl failed to rewind.
         if (!isset($response['err_message'])
@@ -126,13 +126,13 @@ class CurlFactory
             ? new ConnectException($message)
             : new RingException($message);
 
-        return $response + [
+        return $response + array(
             'status'  => null,
             'reason'  => null,
             'body'    => null,
-            'headers' => [],
+            'headers' => array(),
             'error'   => $error,
-        ];
+            );
     }
 
     private function getOutputBody(array $request, array &$options)
@@ -159,7 +159,7 @@ class CurlFactory
         $url = Core::url($request);
         $startingResponse = false;
 
-        $options = [
+        $options = array(
             '_headers'             => $request['headers'],
             CURLOPT_CUSTOMREQUEST  => $request['http_method'],
             CURLOPT_URL            => $url,
@@ -172,13 +172,13 @@ class CurlFactory
                     $startingResponse = true;
                 } elseif ($startingResponse) {
                     $startingResponse = false;
-                    $headers = [$value];
+                    $headers = array($value);
                 } else {
                     $headers[] = $value;
                 }
                 return strlen($h);
             },
-        ];
+        );
 
         if (isset($request['version'])) {
             if ($request['version'] == 2.0) {
@@ -317,7 +317,7 @@ class CurlFactory
      */
     private function applyCustomCurlOptions(array $config, array $options)
     {
-        $curlOptions = [];
+        $curlOptions = array();
         foreach ($config as $key => $value) {
             if (is_int($key)) {
                 $curlOptions[$key] = $value;
@@ -521,7 +521,7 @@ class CurlFactory
      * without an error status.
      */
     private static function retryFailedRewind(
-        callable $handler,
+        $handler,
         array $request,
         array $response
     ) {
